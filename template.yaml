@@ -47,6 +47,36 @@ Resources:
           Projection:
             ProjectionType: ALL
       BillingMode: PAY_PER_REQUEST
+
+  VerificationCodesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Verification-Codes
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: B
+        - AttributeName: created_at
+          AttributeType: N
+        - AttributeName: uuid
+          AttributeType: B
+        - AttributeName: expires
+          AttributeType: N
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: created_at
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: UuidIndex
+          KeySchema:
+            - AttributeName: uuid
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+      TimeToLiveSpecification:
+        AttributeName: expires
+        Enabled: true
       
 Outputs:
   InterphlixAuthenticationApiUrl:
