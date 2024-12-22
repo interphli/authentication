@@ -34,8 +34,6 @@ Resources:
           AttributeType: B
         - AttributeName: email
           AttributeType: S
-        - AttributeName: expires
-          AttributeType: N
       KeySchema:
         - AttributeName: id
           KeyType: HASH
@@ -64,8 +62,6 @@ Resources:
           AttributeType: N
         - AttributeName: uuid
           AttributeType: B
-        - AttributeName: expires
-          AttributeType: N
       KeySchema:
         - AttributeName: id
           KeyType: HASH
