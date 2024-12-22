@@ -17,6 +17,11 @@ Resources:
       Architectures:
         - x86_64
       MemorySize: 1024
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref InterphlixUsersTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref VerificationCodesTable
       Events:
         ApiGateway:
           Type: HttpApi
