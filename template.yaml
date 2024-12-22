@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM Template for interphlix-authentication Lambda function
+
+Resources:
+  InterphlixAuthenticationApi:
+    Type: AWS::Serverless::HttpApi
+
+  InterphlixAuthenticationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: interphlix-authentication
+      Handler: bootstrap
+      Runtime: provided.al2
+      CodeUri: target/lambda/authentication/bootstrap.zip
+      Architectures:
+        - x86_64
+      MemorySize: 1024
+      Events:
+        ApiGateway:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref InterphlixAuthenticationApi
+            Path: /
+            Method: any
+
+Outputs:
+  InterphlixAuthenticationApiUrl:
+    Description: "HTTP API Gateway endpoint URL"
+    Value: !Sub "https://${InterphlixAuthenticationApi}.execute-api.${AWS::Region}.amazonaws.com/"
