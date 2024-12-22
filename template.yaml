@@ -25,6 +25,29 @@ Resources:
             Path: /
             Method: any
 
+  InterphlixUsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Interphlix-Users
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: B
+        - AttributeName: email
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: email
+          KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: EmailIndex
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST
+      
 Outputs:
   InterphlixAuthenticationApiUrl:
     Description: "HTTP API Gateway endpoint URL"
