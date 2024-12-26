@@ -6,7 +6,7 @@ use std::str::FromStr;
 use crate::{Result, StdError};
 
 
-#[derive(Clone, Debug, Deserialize, Default)]
+#[derive(Clone, Debug, Deserialize, Default, PartialEq)]
 pub struct Id(ObjectId);
 
 
