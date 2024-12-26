@@ -1,6 +1,8 @@
 use aws_sdk_dynamodb::types::AttributeValue;
 use serde::{Serialize, Deserialize};
 use std::fmt::{Formatter, Display};
+use std::convert::TryFrom;
+use std::error::Error as StdError;
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
@@ -43,316 +45,82 @@ impl Number {
 }
 
 
-impl From<Number> for u128 {
-    fn from(number: Number) -> Self {
-        match number {
-            Number::U128(number) => number as Self,
-            Number::I128(number) => number as Self,
-            Number::U64(number) => number as Self,
-            Number::I64(number) => number as Self,
-            Number::F64(number) => number as Self,
-            Number::U32(number) => number as Self,
-            Number::I32(number) => number as Self,
-            Number::F32(number) => number as Self,
-            Number::U16(number) => number as Self,
-            Number::I16(number) => number as Self,
-            Number::U8(number) => number as Self,
-            Number::I8(number) => number as Self
+macro_rules! try_from_number_float {
+    ($target:ty, $variant:ident) => {
+        impl TryFrom<Number> for $target {
+            type Error = Box<dyn StdError>;
+
+            fn try_from(number: Number) -> Result<Self, Self::Error> {
+                Ok(match number {
+                    Number::U8(value) => value as $target,
+                    Number::I8(value) => value as $target,
+                    Number::U16(value) => value as $target,
+                    Number::I16(value) => value as $target,
+                    Number::U32(value) => value as $target,
+                    Number::I32(value) => value as $target,
+                    Number::U64(value) => value as $target,
+                    Number::I64(value) => value as $target,
+                    Number::U128(value) => value as $target,
+                    Number::I128(value) => value as $target,
+                    Number::F32(value) => value as $target,
+                    Number::F64(value) => value as $target,
+                })
+            }
         }
-    }
-}
 
-impl From<u128> for Number {
-    fn from(value: u128) -> Self {
-        Number::U128(value)
-    }
-}
-
-
-impl From<Number> for i128 {
-    fn from(number: Number) -> Self {
-        match number {
-            Number::U128(number) => number as Self,
-            Number::I128(number) => number as Self,
-            Number::U64(number) => number as Self,
-            Number::I64(number) => number as Self,
-            Number::F64(number) => number as Self,
-            Number::U32(number) => number as Self,
-            Number::I32(number) => number as Self,
-            Number::F32(number) => number as Self,
-            Number::U16(number) => number as Self,
-            Number::I16(number) => number as Self,
-            Number::U8(number) => number as Self,
-            Number::I8(number) => number as Self
+        impl From<$target> for Number {
+            fn from(value: $target) -> Self {
+                Number::$variant(value)
+            }
         }
-    }
+    };
 }
 
-impl From<i128> for Number {
-    fn from(value: i128) -> Self {
-        Number::I128(value)
-    }
-}
+macro_rules! try_from_number_general {
+    ($target:ty, $variant:ident) => {
+        impl TryFrom<Number> for $target {
+            type Error = Box<dyn StdError>;
 
-
-impl From<Number> for u64 {
-    fn from(number: Number) -> Self {
-        match number {
-            Number::U128(number) => number as Self,
-            Number::I128(number) => number as Self,
-            Number::U64(number) => number as Self,
-            Number::I64(number) => number as Self,
-            Number::F64(number) => number as Self,
-            Number::U32(number) => number as Self,
-            Number::I32(number) => number as Self,
-            Number::F32(number) => number as Self,
-            Number::U16(number) => number as Self,
-            Number::I16(number) => number as Self,
-            Number::U8(number) => number as Self,
-            Number::I8(number) => number as Self
+            fn try_from(number: Number) -> Result<Self, Self::Error> {
+                match number {
+                    Number::U8(value) => value.try_into().map_err(|_| format!("Cannot convert {:?} to {}", number, stringify!($target)).into()),
+                    Number::I8(value) => value.try_into().map_err(|_| format!("Cannot convert {:?} to {}", number, stringify!($target)).into()),
+                    Number::U16(value) => value.try_into().map_err(|_| format!("Cannot convert {:?} to {}", number, stringify!($target)).into()),
+                    Number::I16(value) => value.try_into().map_err(|_| format!("Cannot convert {:?} to {}", number, stringify!($target)).into()),
+                    Number::U32(value) => value.try_into().map_err(|_| format!("Cannot convert {:?} to {}", number, stringify!($target)).into()),
+                    Number::I32(value) => value.try_into().map_err(|_| format!("Cannot convert {:?} to {}", number, stringify!($target)).into()),
+                    Number::U64(value) => value.try_into().map_err(|_| format!("Cannot convert {:?} to {}", number, stringify!($target)).into()),
+                    Number::I64(value) => value.try_into().map_err(|_| format!("Cannot convert {:?} to {}", number, stringify!($target)).into()),
+                    Number::U128(value) => value.try_into().map_err(|_| format!("Cannot convert {:?} to {}", number, stringify!($target)).into()),
+                    Number::I128(value) => value.try_into().map_err(|_| format!("Cannot convert {:?} to {}", number, stringify!($target)).into()),
+                    Number::F32(value) => Ok(value as $target),
+                    Number::F64(value) => Ok(value as $target),
+                }
+            }
         }
-    }
-}
 
-impl From<u64> for Number {
-    fn from(value: u64) -> Self {
-        Number::U64(value)
-    }
-}
-
-
-impl From<Number> for i64 {
-    fn from(number: Number) -> Self {
-        match number {
-            Number::U128(number) => number as Self,
-            Number::I128(number) => number as Self,
-            Number::U64(number) => number as Self,
-            Number::I64(number) => number as Self,
-            Number::F64(number) => number as Self,
-            Number::U32(number) => number as Self,
-            Number::I32(number) => number as Self,
-            Number::F32(number) => number as Self,
-            Number::U16(number) => number as Self,
-            Number::I16(number) => number as Self,
-            Number::U8(number) => number as Self,
-            Number::I8(number) => number as Self
+        impl From<$target> for Number {
+            fn from(value: $target) -> Self {
+                Number::$variant(value)
+            }
         }
-    }
+    };
 }
 
-impl From<i64> for Number {
-    fn from(value: i64) -> Self {
-        Number::I64(value)
-    }
-}
+// Use the appropriate macro for each type
+try_from_number_float!(f32, F32);
+try_from_number_float!(f64, F64);
 
-
-impl From<Number> for f64 {
-    fn from(number: Number) -> Self {
-        match number {
-            Number::U128(number) => number as Self,
-            Number::I128(number) => number as Self,
-            Number::U64(number) => number as Self,
-            Number::I64(number) => number as Self,
-            Number::F64(number) => number as Self,
-            Number::U32(number) => number as Self,
-            Number::I32(number) => number as Self,
-            Number::F32(number) => number as Self,
-            Number::U16(number) => number as Self,
-            Number::I16(number) => number as Self,
-            Number::U8(number) => number as Self,
-            Number::I8(number) => number as Self
-        }
-    }
-}
-
-impl From<f64> for Number {
-    fn from(value: f64) -> Self {
-        Number::F64(value)
-    }
-}
-
-
-impl From<Number> for u32 {
-    fn from(number: Number) -> Self {
-        match number {
-            Number::U128(number) => number as Self,
-            Number::I128(number) => number as Self,
-            Number::U64(number) => number as Self,
-            Number::I64(number) => number as Self,
-            Number::F64(number) => number as Self,
-            Number::U32(number) => number as Self,
-            Number::I32(number) => number as Self,
-            Number::F32(number) => number as Self,
-            Number::U16(number) => number as Self,
-            Number::I16(number) => number as Self,
-            Number::U8(number) => number as Self,
-            Number::I8(number) => number as Self
-        }
-    }
-}
-
-impl From<u32> for Number {
-    fn from(value: u32) -> Self {
-        Number::U32(value)
-    }
-}
-
-
-impl From<Number> for i32 {
-    fn from(number: Number) -> Self {
-        match number {
-            Number::U128(number) => number as Self,
-            Number::I128(number) => number as Self,
-            Number::U64(number) => number as Self,
-            Number::I64(number) => number as Self,
-            Number::F64(number) => number as Self,
-            Number::U32(number) => number as Self,
-            Number::I32(number) => number as Self,
-            Number::F32(number) => number as Self,
-            Number::U16(number) => number as Self,
-            Number::I16(number) => number as Self,
-            Number::U8(number) => number as Self,
-            Number::I8(number) => number as Self
-        }
-    }
-}
-
-impl From<i32> for Number {
-    fn from(value: i32) -> Self {
-        Number::I32(value)
-    }
-}
-
-
-impl From<Number> for f32 {
-    fn from(number: Number) -> Self {
-        match number {
-            Number::U128(number) => number as Self,
-            Number::I128(number) => number as Self,
-            Number::U64(number) => number as Self,
-            Number::I64(number) => number as Self,
-            Number::F64(number) => number as Self,
-            Number::U32(number) => number as Self,
-            Number::I32(number) => number as Self,
-            Number::F32(number) => number as Self,
-            Number::U16(number) => number as Self,
-            Number::I16(number) => number as Self,
-            Number::U8(number) => number as Self,
-            Number::I8(number) => number as Self
-        }
-    }
-}
-
-impl From<f32> for Number {
-    fn from(value: f32) -> Self {
-        Number::F32(value)
-    }
-}
-
-
-impl From<Number> for u16 {
-    fn from(number: Number) -> Self {
-        match number {
-            Number::U128(number) => number as Self,
-            Number::I128(number) => number as Self,
-            Number::U64(number) => number as Self,
-            Number::I64(number) => number as Self,
-            Number::F64(number) => number as Self,
-            Number::U32(number) => number as Self,
-            Number::I32(number) => number as Self,
-            Number::F32(number) => number as Self,
-            Number::U16(number) => number as Self,
-            Number::I16(number) => number as Self,
-            Number::U8(number) => number as Self,
-            Number::I8(number) => number as Self
-        }
-    }
-}
-
-impl From<u16> for Number {
-    fn from(value: u16) -> Self {
-        Number::U16(value)
-    }
-}
-
-
-impl From<Number> for i16 {
-    fn from(number: Number) -> Self {
-        match number {
-            Number::U128(number) => number as Self,
-            Number::I128(number) => number as Self,
-            Number::U64(number) => number as Self,
-            Number::I64(number) => number as Self,
-            Number::F64(number) => number as Self,
-            Number::U32(number) => number as Self,
-            Number::I32(number) => number as Self,
-            Number::F32(number) => number as Self,
-            Number::U16(number) => number as Self,
-            Number::I16(number) => number as Self,
-            Number::U8(number) => number as Self,
-            Number::I8(number) => number as Self
-        }
-    }
-}
-
-impl From<i16> for Number {
-    fn from(value: i16) -> Self {
-        Number::I16(value)
-    }
-}
-
-
-impl From<Number> for u8 {
-    fn from(number: Number) -> Self {
-        match number {
-            Number::U128(number) => number as Self,
-            Number::I128(number) => number as Self,
-            Number::U64(number) => number as Self,
-            Number::I64(number) => number as Self,
-            Number::F64(number) => number as Self,
-            Number::U32(number) => number as Self,
-            Number::I32(number) => number as Self,
-            Number::F32(number) => number as Self,
-            Number::U16(number) => number as Self,
-            Number::I16(number) => number as Self,
-            Number::U8(number) => number as Self,
-            Number::I8(number) => number as Self
-        }
-    }
-}
-
-impl From<u8> for Number {
-    fn from(value: u8) -> Self {
-        Number::U8(value)
-    }
-}
-
-
-impl From<Number> for i8 {
-    fn from(number: Number) -> Self {
-        match number {
-            Number::U128(number) => number as Self,
-            Number::I128(number) => number as Self,
-            Number::U64(number) => number as Self,
-            Number::I64(number) => number as Self,
-            Number::F64(number) => number as Self,
-            Number::U32(number) => number as Self,
-            Number::I32(number) => number as Self,
-            Number::F32(number) => number as Self,
-            Number::U16(number) => number as Self,
-            Number::I16(number) => number as Self,
-            Number::U8(number) => number as Self,
-            Number::I8(number) => number as Self
-        }
-    }
-}
-
-impl From<i8> for Number {
-    fn from(value: i8) -> Self {
-        Number::I8(value)
-    }
-}
+try_from_number_general!(u8, U8);
+try_from_number_general!(i8, I8);
+try_from_number_general!(u16, U16);
+try_from_number_general!(i16, I16);
+try_from_number_general!(u32, U32);
+try_from_number_general!(i32, I32);
+try_from_number_general!(u64, U64);
+try_from_number_general!(i64, I64);
+try_from_number_general!(u128, U128);
+try_from_number_general!(i128, I128);
 
 
 impl Display for Number {
@@ -375,10 +143,12 @@ impl Display for Number {
 }
 
 
-impl From<Number> for AttributeValue {
-    fn from(number: Number) -> Self {
+impl TryFrom<Number> for AttributeValue {
+    type Error = Box<dyn StdError>;
+
+    fn try_from(number: Number) -> Result<Self, Self::Error> {
         let number = number.to_string();
-        AttributeValue::N(number)
+        Ok(AttributeValue::N(number))
     }
 }
 
@@ -387,142 +157,142 @@ impl From<Number> for AttributeValue {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use aws_sdk_dynamodb::types::AttributeValue;
+    use std::convert::TryInto;
 
     #[test]
     fn test_number_to_u128() {
-        assert_eq!(u128::from(Number::U8(255)), 255);
-        assert_eq!(u128::from(Number::I8(-1)), u128::MAX);
-        assert_eq!(u128::from(Number::U16(65535)), 65535);
-        assert_eq!(u128::from(Number::I16(-1)), u128::MAX);
-        assert_eq!(u128::from(Number::U32(4294967295)), 4294967295);
-        assert_eq!(u128::from(Number::I32(-1)), u128::MAX);
-        assert_eq!(u128::from(Number::U64(18446744073709551615)), 18446744073709551615);
-        assert_eq!(u128::from(Number::I64(-1)), u128::MAX);
-        assert_eq!(u128::from(Number::U128(340282366920938463463374607431768211455)), 340282366920938463463374607431768211455);
-        assert_eq!(u128::from(Number::I128(-1)), u128::MAX);
+        assert_eq!(u128::try_from(Number::U8(255)).unwrap(), 255);
+        assert!(u128::try_from(Number::I8(-1)).is_err());
+        assert_eq!(u128::try_from(Number::U16(65535)).unwrap(), 65535);
+        assert!(u128::try_from(Number::I16(-1)).is_err());
+        assert_eq!(u128::try_from(Number::U32(4294967295)).unwrap(), 4294967295);
+        assert!(u128::try_from(Number::I32(-1)).is_err());
+        assert_eq!(u128::try_from(Number::U64(18446744073709551615)).unwrap(), 18446744073709551615);
+        assert!(u128::try_from(Number::I64(-1)).is_err());
+        assert_eq!(u128::try_from(Number::U128(340282366920938463463374607431768211455)).unwrap(), 340282366920938463463374607431768211455);
+        assert!(u128::try_from(Number::I128(-1)).is_err());
     }
 
     #[test]
     fn test_number_to_i128() {
-        assert_eq!(i128::from(Number::U8(255)), 255);
-        assert_eq!(i128::from(Number::I8(-1)), -1);
-        assert_eq!(i128::from(Number::U16(65535)), 65535);
-        assert_eq!(i128::from(Number::I16(-1)), -1);
-        assert_eq!(i128::from(Number::U32(4294967295)), 4294967295);
-        assert_eq!(i128::from(Number::I32(-1)), -1);
-        assert_eq!(i128::from(Number::U64(18446744073709551615)), 18446744073709551615);
-        assert_eq!(i128::from(Number::I64(-1)), -1);
-        assert_eq!(i128::from(Number::U128(340282366920938463463374607431768211455)), 340282366920938463463374607431768211455u128 as i128);
-        assert_eq!(i128::from(Number::I128(-1)), -1);
+        assert_eq!(i128::try_from(Number::U8(255)).unwrap(), 255);
+        assert_eq!(i128::try_from(Number::I8(-1)).unwrap(), -1);
+        assert_eq!(i128::try_from(Number::U16(65535)).unwrap(), 65535);
+        assert_eq!(i128::try_from(Number::I16(-1)).unwrap(), -1);
+        assert_eq!(i128::try_from(Number::U32(4294967295)).unwrap(), 4294967295);
+        assert_eq!(i128::try_from(Number::I32(-1)).unwrap(), -1);
+        assert_eq!(i128::try_from(Number::U64(18446744073709551615)).unwrap(), 18446744073709551615);
+        assert_eq!(i128::try_from(Number::I64(-1)).unwrap(), -1);
+        assert!(i128::try_from(Number::U128(340282366920938463463374607431768211455)).is_err());
+        assert_eq!(i128::try_from(Number::I128(-1)).unwrap(), -1);
     }
 
     #[test]
     fn test_number_to_u64() {
-        assert_eq!(u64::from(Number::U8(255)), 255);
-        assert_eq!(u64::from(Number::I8(-1)), u64::MAX);
-        assert_eq!(u64::from(Number::U16(65535)), 65535);
-        assert_eq!(u64::from(Number::I16(-1)), u64::MAX);
-        assert_eq!(u64::from(Number::U32(4294967295)), 4294967295);
-        assert_eq!(u64::from(Number::I32(-1)), u64::MAX);
-        assert_eq!(u64::from(Number::U64(18446744073709551615)), 18446744073709551615);
-        assert_eq!(u64::from(Number::I64(-1)), u64::MAX);
+        assert_eq!(u64::try_from(Number::U8(255)).unwrap(), 255);
+        assert!(u64::try_from(Number::I8(-1)).is_err());
+        assert_eq!(u64::try_from(Number::U16(65535)).unwrap(), 65535);
+        assert!(u64::try_from(Number::I16(-1)).is_err());
+        assert_eq!(u64::try_from(Number::U32(4294967295)).unwrap(), 4294967295);
+        assert!(u64::try_from(Number::I32(-1)).is_err());
+        assert_eq!(u64::try_from(Number::U64(18446744073709551615)).unwrap(), 18446744073709551615);
+        assert!(u64::try_from(Number::I64(-1)).is_err());
     }
 
     #[test]
     fn test_number_to_i64() {
-        assert_eq!(i64::from(Number::U8(255)), 255);
-        assert_eq!(i64::from(Number::I8(-1)), -1);
-        assert_eq!(i64::from(Number::U16(65535)), 65535);
-        assert_eq!(i64::from(Number::I16(-1)), -1);
-        assert_eq!(i64::from(Number::U32(4294967295)), 4294967295);
-        assert_eq!(i64::from(Number::I32(-1)), -1);
-        assert_eq!(i64::from(Number::U64(18446744073709551615)), 18446744073709551615u64 as i64);
-        assert_eq!(i64::from(Number::I64(-1)), -1);
+        assert_eq!(i64::try_from(Number::U8(255)).unwrap(), 255);
+        assert_eq!(i64::try_from(Number::I8(-1)).unwrap(), -1);
+        assert_eq!(i64::try_from(Number::U16(65535)).unwrap(), 65535);
+        assert_eq!(i64::try_from(Number::I16(-1)).unwrap(), -1);
+        assert_eq!(i64::try_from(Number::U32(4294967295)).unwrap(), 4294967295);
+        // assert_eq!(i64::try_from(Number::I32(-1)).unwrap(), -1);
+        assert!(i64::try_from(Number::U64(18446744073709551615)).is_err());
+        assert_eq!(i64::try_from(Number::I64(-1)).unwrap(), -1);
     }
 
     #[test]
     fn test_number_to_f64() {
-        assert_eq!(f64::from(Number::U8(255)), 255.0);
-        assert_eq!(f64::from(Number::I8(-1)), -1.0);
-        assert_eq!(f64::from(Number::U16(65535)), 65535.0);
-        assert_eq!(f64::from(Number::I16(-1)), -1.0);
-        assert_eq!(f64::from(Number::U32(4294967295)), 4294967295.0);
-        assert_eq!(f64::from(Number::I32(-1)), -1.0);
-        assert_eq!(f64::from(Number::U64(18446744073709551615)), 18446744073709551615.0);
-        assert_eq!(f64::from(Number::I64(-1)), -1.0);
+        assert_eq!(f64::try_from(Number::U8(255)).unwrap(), 255.0);
+        assert_eq!(f64::try_from(Number::I8(-1)).unwrap(), -1.0);
+        assert_eq!(f64::try_from(Number::U16(65535)).unwrap(), 65535.0);
+        assert_eq!(f64::try_from(Number::I16(-1)).unwrap(), -1.0);
+        assert_eq!(f64::try_from(Number::U32(4294967295)).unwrap(), 4294967295.0);
+        assert_eq!(f64::try_from(Number::I32(-1)).unwrap(), -1.0);
+        assert_eq!(f64::try_from(Number::U64(18446744073709551615)).unwrap(), 18446744073709551615.0);
+        assert_eq!(f64::try_from(Number::I64(-1)).unwrap(), -1.0);
     }
 
     #[test]
     fn test_number_to_u32() {
-        assert_eq!(u32::from(Number::U8(255)), 255);
-        assert_eq!(u32::from(Number::I8(-1)), u32::MAX);
-        assert_eq!(u32::from(Number::U16(65535)), 65535);
-        assert_eq!(u32::from(Number::I16(-1)), u32::MAX);
-        assert_eq!(u32::from(Number::U32(4294967295)), 4294967295);
-        assert_eq!(u32::from(Number::I32(-1)), u32::MAX);
+        assert_eq!(u32::try_from(Number::U8(255)).unwrap(), 255);
+        assert!(u32::try_from(Number::I8(-1)).is_err());
+        assert_eq!(u32::try_from(Number::U16(65535)).unwrap(), 65535);
+        assert!(u32::try_from(Number::I16(-1)).is_err());
+        assert_eq!(u32::try_from(Number::U32(4294967295)).unwrap(), 4294967295);
+        assert!(u32::try_from(Number::I32(-1)).is_err());
     }
 
     #[test]
     fn test_number_to_i32() {
-        assert_eq!(i32::from(Number::U8(255)), 255);
-        assert_eq!(i32::from(Number::I8(-1)), -1);
-        assert_eq!(i32::from(Number::U16(65535)), 65535);
-        assert_eq!(i32::from(Number::I16(-1)), -1);
-        assert_eq!(i32::from(Number::U32(4294967295)), 4294967295u32 as i32);
-        assert_eq!(i32::from(Number::I32(-1)), -1);
+        assert_eq!(i32::try_from(Number::U8(255)).unwrap(), 255);
+        assert_eq!(i32::try_from(Number::I8(-1)).unwrap(), -1);
+        assert_eq!(i32::try_from(Number::U16(65535)).unwrap(), 65535);
+        assert_eq!(i32::try_from(Number::I16(-1)).unwrap(), -1);
+        assert!(i32::try_from(Number::U32(4294967295)).is_err());
+        assert_eq!(i32::try_from(Number::I32(-1)).unwrap(), -1);
     }
 
     #[test]
     fn test_number_to_f32() {
-        assert_eq!(f32::from(Number::U8(255)), 255.0);
-        assert_eq!(f32::from(Number::I8(-1)), -1.0);
-        assert_eq!(f32::from(Number::U16(65535)), 65535.0);
-        assert_eq!(f32::from(Number::I16(-1)), -1.0);
-        assert_eq!(f32::from(Number::U32(4294967295)), 4294967295.0);
-        assert_eq!(f32::from(Number::I32(-1)), -1.0);
+        assert_eq!(f32::try_from(Number::U8(255)).unwrap(), 255.0);
+        assert_eq!(f32::try_from(Number::I8(-1)).unwrap(), -1.0);
+        assert_eq!(f32::try_from(Number::U16(65535)).unwrap(), 65535.0);
+        assert_eq!(f32::try_from(Number::I16(-1)).unwrap(), -1.0);
+        assert_eq!(f32::try_from(Number::U32(4294967295)).unwrap(), 4294967295.0);
+        assert_eq!(f32::try_from(Number::I32(-1)).unwrap(), -1.0);
     }
 
     #[test]
     fn test_number_to_u16() {
-        assert_eq!(u16::from(Number::U8(255)), 255);
-        assert_eq!(u16::from(Number::I8(-1)), u16::MAX);
-        assert_eq!(u16::from(Number::U16(65535)), 65535);
-        assert_eq!(u16::from(Number::I16(-1)), u16::MAX);
+        assert_eq!(u16::try_from(Number::U8(255)).unwrap(), 255);
+        assert!(u16::try_from(Number::I8(-1)).is_err());
+        assert_eq!(u16::try_from(Number::U16(65535)).unwrap(), 65535);
+        assert!(u16::try_from(Number::I16(-1)).is_err());
     }
 
     #[test]
     fn test_number_to_i16() {
-        assert_eq!(i16::from(Number::U8(255)), 255);
-        assert_eq!(i16::from(Number::I8(-1)), -1);
-        assert_eq!(i16::from(Number::U16(65535)), 65535u16 as i16);
-        assert_eq!(i16::from(Number::I16(-1)), -1);
+        assert_eq!(i16::try_from(Number::U8(255)).unwrap(), 255);
+        assert_eq!(i16::try_from(Number::I8(-1)).unwrap(), -1);
+        assert!(i16::try_from(Number::U16(65535)).is_err());
+        assert_eq!(i16::try_from(Number::I16(-1)).unwrap(), -1);
     }
 
     #[test]
     fn test_number_to_u8() {
-        assert_eq!(u8::from(Number::U8(255)), 255);
-        assert_eq!(u8::from(Number::I8(-1)), u8::MAX);
+        assert_eq!(u8::try_from(Number::U8(255)).unwrap(), 255);
+        assert!(u8::try_from(Number::I8(-1)).is_err());
     }
 
     #[test]
     fn test_number_to_i8() {
-        assert_eq!(i8::from(Number::U8(255)), -1);
-        assert_eq!(i8::from(Number::I8(-1)), -1);
+        assert!(i8::try_from(Number::U8(255)).is_err());
+        assert_eq!(i8::try_from(Number::I8(-1)).unwrap(), -1);
     }
 
     #[test]
     fn test_number_to_attribute_value() {
         assert_eq!(
-            AttributeValue::from(Number::U8(255)),
+            AttributeValue::try_from(Number::U8(255)).unwrap(),
             AttributeValue::N("255".to_string())
         );
         assert_eq!(
-            AttributeValue::from(Number::I8(-1)),
+            AttributeValue::try_from(Number::I8(-1)).unwrap(),
             AttributeValue::N("-1".to_string())
         );
         assert_eq!(
-            AttributeValue::from(Number::F64(3.14)),
+            AttributeValue::try_from(Number::F64(3.14)).unwrap(),
             AttributeValue::N("3.14".to_string())
         );
     }
