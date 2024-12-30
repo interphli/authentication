@@ -11,7 +11,7 @@ use super::Id;
 pub struct Verification {
     pub user_id: Id,
     pub magic_id: Uuid,
-    pub code: String,
+    pub code: u32,
     pub expires: DateTime<Utc>
 }
 
@@ -21,8 +21,8 @@ impl From<Verification> for HashMap<String, AttributeValue> {
         let mut map = HashMap::new();
         map.insert("user_id".to_string(), AttributeValue::B(verification.user_id.bytes().as_slice().into()));
         map.insert("magic_id".to_string(), AttributeValue::B(verification.magic_id.as_bytes().as_slice().into()));
-        map.insert("code".to_string(), AttributeValue::S(verification.code));
-        map.insert("expires".to_string(), AttributeValue::S(verification.expires.timestamp().to_string()));
+        map.insert("code".to_string(), AttributeValue::N(verification.code.to_string()));
+        map.insert("expires".to_string(), AttributeValue::N(verification.expires.timestamp().to_string()));
         map
     }
 }
@@ -42,7 +42,7 @@ impl TryFrom<HashMap<String, AttributeValue>> for Verification {
         };
 
         let code = match map.remove("code") {
-            Some(AttributeValue::S(s)) => s,
+            Some(AttributeValue::N(s)) => s.parse()?,
             _ => return Err("code not found or invalid".into()),
         };
 
@@ -57,7 +57,7 @@ impl TryFrom<HashMap<String, AttributeValue>> for Verification {
         Ok(Verification {
             user_id: std::str::from_utf8(user_id.as_slice()).map_err(|_| "Invalid user_id")?.parse()?,
             magic_id: Uuid::from_slice(magic_id.as_slice()).map_err(|_| "Invalid magic_id")?,
-            code: code.to_string(),
+            code: code,
             expires,
         })
     }
@@ -77,13 +77,13 @@ mod tests {
         let verification = Verification {
             user_id: Id::from_str("507f1f77bcf86cd799439011").unwrap(),
             magic_id: Uuid::new_v4(),
-            code: "test_code".to_string(),
+            code: 120203,
             expires: DateTime::from_timestamp(1_614_000_600, 0).unwrap(),
         };
 
         let map: HashMap<String, AttributeValue> = verification.clone().into();
-        assert_eq!(map.get("code").unwrap().as_s().unwrap(), "test_code");
-        assert_eq!(map.get("expires").unwrap().as_s().unwrap(), "1614000600");
+        assert_eq!(map.get("code").unwrap().as_n().unwrap(), "120203");
+        assert_eq!(map.get("expires").unwrap().as_n().unwrap(), "1614000600");
     }
 
     #[test]
@@ -91,11 +91,11 @@ mod tests {
         let mut map = HashMap::new();
         map.insert("user_id".to_string(), AttributeValue::B(b"507f1f77bcf86cd799439011".to_vec().into()));
         map.insert("magic_id".to_string(), AttributeValue::B(Uuid::new_v4().as_bytes().to_vec().into()));
-        map.insert("code".to_string(), AttributeValue::S("test_code".to_string()));
+        map.insert("code".to_string(), AttributeValue::N(010203.to_string()));
         map.insert("expires".to_string(), AttributeValue::S("1614000600".to_string()));
 
         let verification = Verification::try_from(map).unwrap();
-        assert_eq!(verification.code, "test_code");
+        assert_eq!(verification.code, 010203);
         assert_eq!(verification.expires.timestamp(), 1_614_000_600);
     }
 }
