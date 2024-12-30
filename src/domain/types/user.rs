@@ -39,7 +39,6 @@ impl Serialize for User {
         match &self.email {
             EmailAddress::New(address) => {
                 state.serialize_field("email", &address.to_string())?;
-                state.serialize_field("email_verified", &false)?;
             }
             EmailAddress::Verified(address) => {
                 state.serialize_field("email", &address.to_string())?;
@@ -323,7 +322,6 @@ impl From<User> for HashMap<String, AttributeValue> {
             let data = r#"{
                 "id": "000000000000000000000000",
                 "email": "test@example.com",
-                "email_verified": false,
                 "user_name": "testuser",
                 "first_name": "Test",
                 "last_name": "User",
