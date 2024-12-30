@@ -140,24 +140,22 @@ impl TryFrom<Value> for Vec<Value> {
 }
 
 
-impl TryFrom<Value> for AttributeValue {
-    type Error = Box<dyn StdError>;
-
-    fn try_from(value: Value) -> Result<Self, Self::Error> {
+impl From<Value> for AttributeValue {
+    fn from(value: Value) -> Self {
         match value {
-            Value::None => Ok(AttributeValue::Null(true)),
-            Value::Bool(bool) => Ok(AttributeValue::Bool(bool)),
-            Value::Number(number) => Ok(number.try_into()?),
-            Value::String(string) => Ok(AttributeValue::S(string)),
+            Value::None => AttributeValue::Null(true),
+            Value::Bool(bool) => AttributeValue::Bool(bool),
+            Value::Number(number) => number.try_into().unwrap_or_else(|_| AttributeValue::Null(true)),
+            Value::String(string) => AttributeValue::S(string),
             Value::Map(map) => {
-                let converted_map: Result<HashMap<String, AttributeValue>, _> = map.into_iter()
-                    .map(|(key, value)| Result::<(String, AttributeValue), Self::Error>::Ok((key, AttributeValue::try_from(value)?)))
+                let converted_map: HashMap<String, AttributeValue> = map.into_iter()
+                    .map(|(key, value)| (key, AttributeValue::from(value)))
                     .collect();
-                Ok(AttributeValue::M(converted_map?))
+                AttributeValue::M(converted_map)
             }
             Value::Array(values) => {
                 if values.is_empty() {
-                    Ok(AttributeValue::L(vec![]))
+                    AttributeValue::L(vec![])
                 } else if matches!(values[0], Value::Number(_)) {
                     if values.iter().all(|v| matches!(v, Value::Number(_))) {
                         let numbers: Vec<Number> = values.into_iter().filter_map(|v| {
@@ -167,10 +165,10 @@ impl TryFrom<Value> for AttributeValue {
                                 None
                             }
                         }).collect();
-                        Ok(Number::attribute_value(&numbers))
+                        Number::attribute_value(&numbers)
                     } else {
-                        let list: Result<Vec<AttributeValue>, _> = values.into_iter().map(AttributeValue::try_from).collect();
-                        Ok(AttributeValue::L(list?))
+                        let list: Vec<AttributeValue> = values.into_iter().map(AttributeValue::from).collect();
+                        AttributeValue::L(list)
                     }
                 } else if matches!(values[0], Value::String(_)) {
                     if values.iter().all(|v| matches!(v, Value::String(_))) {
@@ -181,14 +179,14 @@ impl TryFrom<Value> for AttributeValue {
                                 String::new()
                             }
                         }).collect();
-                        Ok(AttributeValue::Ss(ss))
+                        AttributeValue::Ss(ss)
                     } else {
-                        let list: Result<Vec<AttributeValue>, _> = values.into_iter().map(AttributeValue::try_from).collect();
-                        Ok(AttributeValue::L(list?))
+                        let list: Vec<AttributeValue> = values.into_iter().map(AttributeValue::from).collect();
+                        AttributeValue::L(list)
                     }
                 } else {
-                    let list: Result<Vec<AttributeValue>, _> = values.into_iter().map(AttributeValue::try_from).collect();
-                    Ok(AttributeValue::L(list?))
+                    let list: Vec<AttributeValue> = values.into_iter().map(AttributeValue::from).collect();
+                    AttributeValue::L(list)
                 }
             }
         }
@@ -256,20 +254,20 @@ mod tests {
 
     #[test]
     fn test_value_to_attribute_value() {
-        assert_eq!(AttributeValue::try_from(Value::None).unwrap(), AttributeValue::Null(true));
-        assert_eq!(AttributeValue::try_from(Value::Bool(true)).unwrap(), AttributeValue::Bool(true));
-        assert_eq!(AttributeValue::try_from(Value::String("test".to_string())).unwrap(), AttributeValue::S("test".to_string()));
+        assert_eq!(AttributeValue::from(Value::None), AttributeValue::Null(true));
+        assert_eq!(AttributeValue::from(Value::Bool(true)), AttributeValue::Bool(true));
+        assert_eq!(AttributeValue::from(Value::String("test".to_string())), AttributeValue::S("test".to_string()));
 
         let mut map = HashMap::new();
         map.insert("key".to_string(), Value::Bool(true));
         assert_eq!(
-            AttributeValue::try_from(Value::Map(map.clone())).unwrap(),
+            AttributeValue::from(Value::Map(map.clone())),
             AttributeValue::M(map.into_iter().map(|(k, v)| (k, AttributeValue::try_from(v).unwrap())).collect())
         );
 
         let vec = vec![Value::Number(Number::U8(1)), Value::Number(Number::U8(2))];
         assert_eq!(
-            AttributeValue::try_from(Value::Array(vec.clone())).unwrap(),
+            AttributeValue::from(Value::Array(vec.clone())),
             Number::attribute_value(&vec.into_iter().filter_map(|v| if let Value::Number(n) = v { Some(n) } else { None }).collect())
         );
     }
