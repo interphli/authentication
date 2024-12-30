@@ -63,15 +63,11 @@ Resources:
       AttributeDefinitions:
         - AttributeName: user_id
           AttributeType: B
-        - AttributeName: created_at
-          AttributeType: N
         - AttributeName: magic_id
           AttributeType: B
       KeySchema:
         - AttributeName: user_id
           KeyType: HASH
-        - AttributeName: created_at
-          KeyType: RANGE
       GlobalSecondaryIndexes:
         - IndexName: MagicIdIndex
           KeySchema:
