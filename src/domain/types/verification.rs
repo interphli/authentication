@@ -4,8 +4,7 @@ use std::collections::HashMap;
 use chrono::{DateTime, Utc, TimeZone};
 use std::convert::TryFrom;
 use std::str::FromStr;
-use uuid::Uuid;
-use super::Id;
+use super::{Id, Uuid};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Verification {
@@ -32,12 +31,12 @@ impl TryFrom<HashMap<String, AttributeValue>> for Verification {
 
     fn try_from(mut map: HashMap<String, AttributeValue>) -> Result<Self, Self::Error> {
         let user_id = match map.remove("user_id") {
-            Some(AttributeValue::B(bytes)) => bytes.into_inner(),
+            Some(value) => value.try_into()?,
             _ => return Err("user_id not found or invalid".into()),
         };
 
         let magic_id = match map.remove("magic_id") {
-            Some(AttributeValue::B(bytes)) => bytes.into_inner(),
+            Some(value) => value.try_into()?,
             _ => return Err("magic_id not found or invalid".into()),
         };
 
@@ -55,8 +54,8 @@ impl TryFrom<HashMap<String, AttributeValue>> for Verification {
         };
 
         Ok(Verification {
-            user_id: std::str::from_utf8(user_id.as_slice()).map_err(|_| "Invalid user_id")?.parse()?,
-            magic_id: Uuid::from_slice(magic_id.as_slice()).map_err(|_| "Invalid magic_id")?,
+            user_id,
+            magic_id,
             code: code,
             expires,
         })
@@ -70,7 +69,7 @@ mod tests {
     use std::collections::HashMap;
     use aws_sdk_dynamodb::types::AttributeValue;
     use chrono::{TimeZone, Utc};
-    use uuid::Uuid;
+    
 
     #[test]
     fn test_verification_to_hashmap() {
@@ -89,8 +88,8 @@ mod tests {
     #[test]
     fn test_hashmap_to_verification() {
         let mut map = HashMap::new();
-        map.insert("user_id".to_string(), AttributeValue::B(b"507f1f77bcf86cd799439011".to_vec().into()));
-        map.insert("magic_id".to_string(), AttributeValue::B(Uuid::new_v4().as_bytes().to_vec().into()));
+        map.insert("user_id".to_string(), Id::default().into());
+        map.insert("magic_id".to_string(), Uuid::new_v4().into());
         map.insert("code".to_string(), AttributeValue::N(010203.to_string()));
         map.insert("expires".to_string(), AttributeValue::S("1614000600".to_string()));
 
