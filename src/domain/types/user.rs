@@ -291,6 +291,16 @@ impl From<User> for HashMap<String, AttributeValue> {
 }
 
 
+impl From<EmailAddress> for AttributeValue {
+    fn from(email: EmailAddress) -> Self {
+        match email {
+            EmailAddress::New(address) => AttributeValue::S(address.to_string()),
+            EmailAddress::Verified(address) => AttributeValue::S(address.to_string())
+        }
+    }
+}
+
+
 
 #[cfg(test)]
     mod tests {
