@@ -1,4 +1,6 @@
 use aws_sdk_dynamodb::operation::batch_get_item::BatchGetItemError;
+use aws_sdk_dynamodb::operation::delete_item::DeleteItemError;
+use aws_sdk_dynamodb::operation::update_item::UpdateItemError;
 use aws_sdk_dynamodb::operation::put_item::PutItemError;
 use aws_sdk_dynamodb::operation::get_item::GetItemError;
 use lambda_http::http::header::CONTENT_TYPE;
@@ -99,6 +101,23 @@ impl From<BatchGetItemError> for Error {
 
 impl From<BuildError> for Error {
     fn from(value: BuildError) -> Self {
+        Error::InternalServerError(Box::new(value))
+    }
+}
+
+
+impl From<UpdateItemError> for Error {
+    fn from(value: UpdateItemError) -> Self {
+        match value {
+            UpdateItemError::ConditionalCheckFailedException(err) => Error::Custom(StatusCode::NOT_FOUND, String::from("item not found"), err.into()),
+            _ => Error::InternalServerError(Box::new(value))
+        }
+    }
+}
+
+
+impl From<DeleteItemError> for Error {
+    fn from(value: DeleteItemError) -> Self {
         Error::InternalServerError(Box::new(value))
     }
 }
