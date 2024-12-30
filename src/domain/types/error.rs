@@ -16,9 +16,10 @@ pub type StdError = Box<dyn StdErrorTrait>;
 #[derive(Debug)]
 pub enum Error {
     UserNotFound,
-    VerificationCodeNotFound,
     UserWithEmailAlreadyExists,
+    VerificationCodeNotFound,
     VerificationCodeExpired,
+    WrongVerificationCode,
     InternalServerError(StdError),
     Custom(StatusCode, String, StdError)
 }
@@ -29,9 +30,10 @@ impl Error {
         use Error::*;
         match self {
             UserNotFound => (StatusCode::NOT_FOUND, String::from("user not found")),
-            VerificationCodeNotFound => (StatusCode::NOT_FOUND, String::from("verification-code not found")),
             UserWithEmailAlreadyExists => (StatusCode::CONFLICT, String::from("user with this email already exists")),
+            VerificationCodeNotFound => (StatusCode::NOT_FOUND, String::from("verification-code not found")),
             VerificationCodeExpired => (StatusCode::GONE, String::from("the verification-code has expired")),
+            WrongVerificationCode => (StatusCode::BAD_REQUEST, String::from("wrong verification code")),
             InternalServerError(_) => (StatusCode::INTERNAL_SERVER_ERROR, String::from("internal server error. We are working on resolving the problem")),
             Custom(status, msg, _) => (*status, msg.clone())
         }
@@ -43,9 +45,10 @@ impl Display for Error {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
             Error::UserNotFound => write!(f, "user not found"),
-            Error::VerificationCodeNotFound => write!(f, "verification code not found"),
             Error::UserWithEmailAlreadyExists => write!(f, "user with the same email exists"),
+            Error::VerificationCodeNotFound => write!(f, "verification code not found"),
             Error::VerificationCodeExpired => write!(f, "verification code has expired"),
+            Error::WrongVerificationCode => write!(f, "wrong verification code"),
             Error::InternalServerError(err) => write!(f, "{err}"),
             Error::Custom(status, _, err) => write!(f, "{err}"),
         }
