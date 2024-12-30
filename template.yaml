@@ -59,7 +59,7 @@ Resources:
   VerificationCodesTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: Verification-Codes
+      TableName: Interphlix-Verification-Codes
       AttributeDefinitions:
         - AttributeName: user_id
           AttributeType: B

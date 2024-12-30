@@ -1,12 +1,10 @@
 use aws_sdk_dynamodb::{types::AttributeValue, Client};
-use super::super::types::{Verification, Error, Id};
+use super::super::types::{Verification, Id};
+use super::Result;
 use uuid::Uuid;
 
 
-type Result<T> = std::result::Result<T, Error>;
-
-
-const TABLE_NAME: &'static str = "Verification-Codes";
+const TABLE_NAME: &'static str = "Interphlix-Verification-Codes";
 
 
 pub async fn create_verification(client: &Client, verification: Verification) -> Result<()> {
