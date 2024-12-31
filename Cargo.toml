@@ -31,6 +31,7 @@ bson = "2.13.0"
 jwt = "0.16.0"
 rand = "0.8.5"
 url = "2.5.4"
+aws-config = { version = "1.5.12", features = ["behavior-version-latest"] }
 
 
 [features]
