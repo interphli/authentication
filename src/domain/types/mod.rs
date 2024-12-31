@@ -5,6 +5,7 @@ mod either;
 mod value;
 mod error;
 mod uuid;
+mod mail;
 mod user;
 mod id;
 
@@ -15,5 +16,6 @@ pub use either::*;
 pub use value::*;
 pub use error::*;
 pub use uuid::*;
+pub use mail::*;
 pub use user::*;
 pub use id::*;
