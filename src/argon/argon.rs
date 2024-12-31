@@ -1,5 +1,4 @@
 use argon2::{Argon2, Version, Algorithm, Params};
-use crate::shared::{Request, Result};
 use tokio::sync::OnceCell;
 use std::env::var;
 use argon2::Error;
