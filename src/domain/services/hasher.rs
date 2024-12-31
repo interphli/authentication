@@ -22,7 +22,7 @@ impl PasswordHasher {
     }
 
     pub async fn hash(&self, password: String) -> Result<String> {
-        let function_name = var("ARGON").unwrap_or(String::from("Argon"));
+        let function_name = var("ARGON").unwrap_or(String::from("argon"));
         let request = Request::Hash(password);
         let json = json(&request)?;
         let payload = Blob::new(json);
