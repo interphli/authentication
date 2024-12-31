@@ -1,17 +1,17 @@
-use argon2::{Argon2, Version, Algorithm, ParamsBuilder, Params};
+use argon2::{Argon2, Version, Algorithm, Params};
 use crate::shared::{Request, Result};
 use tokio::sync::OnceCell;
 use std::env::var;
 use argon2::Error;
 
-const PEPPER: OnceCell<String> = OnceCell::const_new();
+static PEPPER: OnceCell<String> = OnceCell::const_new();
 
 
 pub async fn new_argon2() -> Argon2<'static> {
-    let mut t_cost = var("TIME_COST").unwrap_or(Params::DEFAULT_T_COST);
-    let mut m_cost = var("MEMORY_COST").unwrap_or(Params::DEFAULT_M_COST);
-    let mut p_cost = var("PARALLELISM").unwrap_or(Params::DEFAULT_P_COST);
-    let mut output_len = var("OUTPUT_LENGTH").ok();
+    let mut t_cost = var("TIME_COST").unwrap_or(Params::DEFAULT_T_COST.to_string()).parse().unwrap_or(Params::DEFAULT_T_COST);
+    let mut m_cost = var("MEMORY_COST").unwrap_or(Params::DEFAULT_M_COST.to_string()).parse().unwrap_or(Params::DEFAULT_M_COST);
+    let mut p_cost = var("PARALLELISM").unwrap_or(Params::DEFAULT_P_COST.to_string()).parse().unwrap_or(Params::DEFAULT_P_COST);
+    let mut output_len = match var("OUTPUT_LENGTH"){Ok(value) => match value.parse(){Ok(value) => Some(value), _ => None}, _ => None};
     let algorithm = match var("ALGORITHM") {
         Ok(value) => {
             match value.to_lowercase().replace(" ", "").as_str() {
@@ -50,9 +50,9 @@ pub async fn new_argon2() -> Argon2<'static> {
         }
     }).unwrap_or_default();
     match PEPPER.get_or_try_init(init).await {
-        Ok(value) => {
-            let secret = value.as_bytes();
-            match Argon2::new_with_secret(secret, algorithm, version, params) {
+        Ok(pepper) => {
+            // let secret: &'static [u8] = value.as_bytes();
+            match Argon2::new_with_secret(pepper.as_bytes(), algorithm, version, params.clone()) {
                 Ok(argon) => argon,
                 _ => Argon2::new(algorithm, version, params)
             }
@@ -63,6 +63,6 @@ pub async fn new_argon2() -> Argon2<'static> {
     }
 }
 
-async fn init() -> Result<String> {
-    var("PEPPER")
+async fn init() -> crate::Result<String> {
+    Ok(var("PEPPER")?)
 }
