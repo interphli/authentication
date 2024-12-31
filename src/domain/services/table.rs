@@ -1,6 +1,7 @@
+use super::super::types::{Error, Either, Value, StdError, Verification, Id, Uuid, EmailAddress, User};
 use aws_sdk_dynamodb::{Client, types::{AttributeValue, AttributeValueUpdate, ReturnValue}};
-use super::super::types::{Error, Either, Value, StdError};
 use std::collections::HashMap;
+
 
 
 type Result<T> = std::result::Result<T, Error>;
@@ -10,6 +11,7 @@ pub trait Table : Into<HashMap<String, AttributeValue>> + TryFrom<HashMap<String
     type SK: Into<AttributeValue>;
     const NAME: &'static str;
     const PK_NAME: &'static str;
+    ///This is Global Secondary Index's PK
     const SK_NAME: &'static str;
 
     /// This function checks if an item exists in the database.
@@ -84,4 +86,23 @@ pub trait Table : Into<HashMap<String, AttributeValue>> + TryFrom<HashMap<String
             .send().await?;
         Ok(())
     }
+}
+
+
+
+impl Table for Verification {
+    type PK = Id;
+    type SK = Uuid;
+    const NAME: &'static str = "Interphlix-Verification-Codes";
+    const PK_NAME: &'static str = "user_id";
+    const SK_NAME: &'static str = "magic_id";
+}
+
+
+impl Table for User {
+    type PK = Id;
+    type SK = EmailAddress;
+    const NAME: &'static str = "Interphlix-Users";
+    const PK_NAME: &'static str = "id";
+    const SK_NAME: &'static str = "email";
 }

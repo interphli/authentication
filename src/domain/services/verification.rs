@@ -1,9 +1,8 @@
-use super::super::types::{Verification, Error, Id};
-use super::super::db::verification;
+use super::super::types::{Verification, Error, Id, Uuid, Either};
 use aws_sdk_dynamodb::Client;
+use super::table::Table;
 use chrono::TimeDelta;
 use chrono::Utc;
-use uuid::Uuid;
 use rand::Rng;
 
 
@@ -22,7 +21,7 @@ pub async fn generate_verification_code(client: &Client, user_id: Id) -> Result<
         code: code,
         expires,
     };
-    verification::create_verification(client, verification.clone()).await?;
+    <Verification as Table>::create_item(client, verification.clone()).await?;
     Ok(verification)
 }
 
@@ -32,7 +31,8 @@ pub async fn generate_verification_code(client: &Client, user_id: Id) -> Result<
 /// if verification is found. it checks if it has expired or not. if expired it returns an error of VerificationCodeExpired.
 /// else it returns the user_id of that verification.
 pub async fn verify_magic_link(client: &Client, magic_id: Uuid) -> Result<Id> {
-    let option = verification::get_verification_by_magic_id(client, magic_id).await?;
+    let key = Either::Left(magic_id);
+    let option = <Verification as Table>::get_item(client, key).await?;
     match option {
         None => Err(Error::VerificationCodeNotFound),
         Some(verification) => {
@@ -51,7 +51,8 @@ pub async fn verify_magic_link(client: &Client, magic_id: Uuid) -> Result<Id> {
 ///if a Value is returned it compares the provided code with the stored code.
 ///If the comparison is true it returns `()` else and error of `WrongVerificationCode`
 pub async fn verify_verification_code(client: &Client, user_id: Id, code: u32) -> Result<()> {
-    let option = verification::get_verification_code_by_user(client, user_id).await?;
+    let key = Either::Right(user_id);
+    let option = <Verification as Table>::get_item(client, key).await?;
     match option {
         None => Err(Error::VerificationCodeNotFound),
         Some(verification) => {
