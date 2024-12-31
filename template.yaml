@@ -15,9 +15,16 @@ Resources:
       Runtime: provided.al2
       CodeUri: target/lambda/authentication/bootstrap.zip
       Architectures:
-        - x86_64
-      MemorySize: 1024
+        - arm64
+      MemorySize: 128
+      Environment:
+        Variables:
+          ARGON: !GetAtt ArgonFunction.Arn
       Policies:
+        - Statement:
+            Effect: Allow
+            Action: lambda:InvokeFunction
+            Resource: !GetAtt ArgonFunction.Arn
         - DynamoDBCrudPolicy:
             TableName: !Ref InterphlixUsersTable
         - DynamoDBCrudPolicy:
@@ -80,6 +87,20 @@ Resources:
         AttributeName: expires
         Enabled: true
       
+  ArgonFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: argon
+      Handler: bootstrap
+      Runtime: provided.al2
+      CodeUri: target/lambda/argon/bootstrap.zip
+      Architectures:
+        - x86_64
+      MemorySize: 3008
+      Environment:
+        Variables:
+          PARALLELISM: "3"
+          
 Outputs:
   InterphlixAuthenticationApiUrl:
     Description: "HTTP API Gateway endpoint URL"
