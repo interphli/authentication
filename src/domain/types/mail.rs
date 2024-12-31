@@ -1,4 +1,4 @@
-use lettre::{message::Mailbox, transport::smtp::PoolConfig, AsyncSmtpTransport, Tokio1Executor};
+use lettre::{message::{Mailbox, SinglePart, Message}, transport::smtp::PoolConfig, AsyncSmtpTransport, Tokio1Executor, AsyncTransport};
 use lettre::transport::smtp::authentication::Credentials;
 use serde::{Serialize, Deserialize, Deserializer};
 use serde::de::{self, MapAccess, Visitor};
@@ -30,16 +30,15 @@ impl Mail {
         Ok(mailer.pool_config(PoolConfig::new()).build())
     }
 
-    pub fn mailer(&self) -> &Mailer {
-        &self.mailer
-    }
-
-    pub fn credentials(&self) -> &Option<Credentials> {
-        &self.credentials
-    }
-
-    pub fn sender(&self) -> &Mailbox {
-        &self.sender
+    pub async fn send_html_email(&self, receiver: Mailbox, subject: &str, body: String) -> Result<()> {
+        let part = SinglePart::html(body);
+        let email = Message::builder()
+        .from(self.sender.clone())
+        .to(receiver)
+        .subject(subject)
+        .singlepart(part)?;
+        self.mailer.send(email).await?;
+        Ok(())
     }
 }
 
