@@ -1,10 +1,9 @@
-use super::super::types::{Error, Value, Either};
+use super::super::types::{Error, Value, Either, User, Verification};
 use super::super::services::table::Table;
 use aws_sdk_dynamodb::operation::get_item;
 use chrono::{DateTime, Utc, TimeDelta};
 use std::collections::HashMap;
 use aws_sdk_dynamodb::Client;
-use std::fs::exists;
 
 
 type Result<T> = std::result::Result<T, Error>;
@@ -101,3 +100,8 @@ pub trait Manager: Sized + Table {
         <Self as Table>::delete_item(client, id).await
     }
 }
+
+
+
+impl Manager for User {}
+impl Manager for Verification {}
