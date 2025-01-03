@@ -1,7 +1,7 @@
 use aws_sdk_lambda::types::InvocationType;
 use aws_sdk_lambda::primitives::Blob;
 use serde_json::{to_vec as json, from_slice};
-use crate::shared::{Request, Result as Response};
+use shared::{Request, Result as Response};
 use aws_sdk_lambda::Client;
 use std::env::var;
 

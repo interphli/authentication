@@ -1,0 +1,12 @@
+[package]
+name = "argon"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rand_core = { version = "0.6.4", features = ["getrandom"]}
+serde = { version = "1.0.215", features = ["derive"] }
+shared = {path = "../shared", features = ["server"]}
+tokio = { version = "1.42.0", features = ["full"] }
+lambda_runtime = "0.13.0"
+argon2 = "0.5.3"

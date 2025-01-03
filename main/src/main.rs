@@ -4,7 +4,6 @@ use std::error::Error as StdError;
 mod config;
 mod domain;
 mod server;
-mod shared;
 
 
 pub type Result<T> = std::result::Result<T, Box<dyn StdError>>;

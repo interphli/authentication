@@ -13,7 +13,7 @@ Resources:
       FunctionName: interphlix-authentication
       Handler: bootstrap
       Runtime: provided.al2
-      CodeUri: target/lambda/authentication/bootstrap.zip
+      CodeUri: target/lambda/main/bootstrap.zip
       Architectures:
         - arm64
       MemorySize: 128

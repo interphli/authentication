@@ -1,14 +1,14 @@
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "argon", derive(serde::Deserialize))]
-#[cfg_attr(not(feature = "argon"), derive(serde::Serialize))]
+#[cfg_attr(feature = "server", derive(serde::Deserialize))]
+#[cfg_attr(feature = "client", derive(serde::Serialize))]
 pub enum Request {
     Hash(String),
     Verify(String, String)
 }
 
 #[derive(Debug, Clone)]
-#[cfg_attr(feature = "argon", derive(serde::Serialize))]
-#[cfg_attr(not(feature = "argon"), derive(serde::Deserialize))]
+#[cfg_attr(feature = "server", derive(serde::Serialize))]
+#[cfg_attr(feature = "client", derive(serde::Deserialize))]
 pub enum Result<T, E> {
     Ok(T),
     Err(E)

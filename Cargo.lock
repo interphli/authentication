@@ -61,6 +61,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "argon"
+version = "0.1.0"
+dependencies = [
+ "argon2",
+ "lambda_runtime",
+ "rand_core",
+ "serde",
+ "shared",
+ "tokio",
+]
+
+[[package]]
 name = "argon2"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -96,36 +108,13 @@ dependencies = [
 
 [[package]]
 name = "async-trait"
-version = "0.1.83"
+version = "0.1.84"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "721cae7de5c34fbb2acd27e21e6d2cf7b886dce0c27388d46c4e6c47ea4318dd"
+checksum = "1b1244b10dcd56c92219da4e14caa97e312079e185f04ba3eea25061561dc0a0"
 dependencies = [
  "proc-macro2",
  "quote",
  "syn",
-]
-
-[[package]]
-name = "authentication"
-version = "0.1.0"
-dependencies = [
- "argon2",
- "aws-config",
- "aws-sdk-config",
- "aws-sdk-dynamodb",
- "aws-sdk-lambda",
- "bson",
- "chrono",
- "jwt",
- "lambda_http",
- "lettre",
- "native-tls",
- "rand",
- "serde",
- "serde_json",
- "tokio",
- "url",
- "uuid",
 ]
 
 [[package]]
@@ -204,9 +193,9 @@ dependencies = [
 
 [[package]]
 name = "aws-sdk-config"
-version = "1.54.0"
+version = "1.55.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d56ef79518d847535acdcef7a3b45445513ae80568f2a96b59ba375f8a7a23d4"
+checksum = "2200e4e60681c0ed7846eb4952f850f129e1a6a3698d4b16482f28649904fc5c"
 dependencies = [
  "aws-credential-types",
  "aws-runtime",
@@ -226,9 +215,9 @@ dependencies = [
 
 [[package]]
 name = "aws-sdk-dynamodb"
-version = "1.56.0"
+version = "1.57.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34ba7f3f9fa39ae0d877e69c7abb145571e0b6ed8a1b570f36dbd147176e4019"
+checksum = "94eddb79659f74c5cf0ba98ab93b7bda3e0120c827539e4944438f179da7c7d3"
 dependencies = [
  "aws-credential-types",
  "aws-runtime",
@@ -671,9 +660,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.5"
+version = "1.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c31a0499c1dc64f458ad13872de75c0eb7e3fdb0e67964610c914b034fc5956e"
+checksum = "a012a0df96dd6d06ba9a1b29d6402d1a5d77c6befd2566afdc26e10603dc93d7"
 dependencies = [
  "shlex",
 ]
@@ -1555,6 +1544,29 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
 
 [[package]]
+name = "main"
+version = "0.1.0"
+dependencies = [
+ "aws-config",
+ "aws-sdk-config",
+ "aws-sdk-dynamodb",
+ "aws-sdk-lambda",
+ "bson",
+ "chrono",
+ "jwt",
+ "lambda_http",
+ "lettre",
+ "native-tls",
+ "rand",
+ "serde",
+ "serde_json",
+ "shared",
+ "tokio",
+ "url",
+ "uuid",
+]
+
+[[package]]
 name = "matchers"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1851,9 +1863,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.37"
+version = "1.0.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5b9d34b8991d19d98081b46eacdd8eb58c6f2b201139f7c5f643cc155a633af"
+checksum = "0e4dccaaaf89514f546c693ddc140f729f958c247918a13380cccc6078391acc"
 dependencies = [
  "proc-macro2",
 ]
@@ -2107,9 +2119,9 @@ checksum = "3cb6eb87a131f756572d7fb904f6e7b68633f09cca868c5df1c4b8d1a694bbba"
 
 [[package]]
 name = "serde"
-version = "1.0.216"
+version = "1.0.217"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b9781016e935a97e8beecf0c933758c97a5520d32930e460142b4cd80c6338e"
+checksum = "02fc4265df13d6fa1d00ecff087228cc0a2b5f3c0e87e258d8b94a156e984c70"
 dependencies = [
  "serde_derive",
 ]
@@ -2125,9 +2137,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.216"
+version = "1.0.217"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46f859dbbf73865c6627ed570e78961cd3ac92407a2d117204c49232485da55e"
+checksum = "5a9bf7cf98d04a2b28aead066b7496853d4779c9cc183c440dbac457641e19a0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2187,6 +2199,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f40ca3c46823713e0d4209592e8d6e826aa57e928f09752619fc696c499637f6"
 dependencies = [
  "lazy_static",
+]
+
+[[package]]
+name = "shared"
+version = "0.1.0"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
@@ -2262,9 +2281,9 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "syn"
-version = "2.0.91"
+version = "2.0.94"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d53cbcb5a243bd33b7858b1d7f4aca2153490815872d86d955d6ea29f743c035"
+checksum = "987bc0be1cdea8b10216bd06e2ca407d40b9543468fafd3ddfb02f36e77f71f3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2290,12 +2309,13 @@ checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
 
 [[package]]
 name = "tempfile"
-version = "3.14.0"
+version = "3.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28cce251fcbc87fac86a866eeb0d6c2d536fc16d06f184bb61aeae11aa4cee0c"
+checksum = "9a8a559c81686f576e8cd0290cd2a24a2a9ad80c98b3478856500fcbd7acd704"
 dependencies = [
  "cfg-if",
  "fastrand",
+ "getrandom",
  "once_cell",
  "rustix",
  "windows-sys 0.59.0",

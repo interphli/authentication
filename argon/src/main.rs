@@ -1,8 +1,7 @@
-use lambda_http::lambda_runtime::{service_fn, run};
+use lambda_runtime::{service_fn, run};
 use std::error::Error as StdError;
 use argon::{handler, new_argon2};
 
-mod shared;
 mod argon;
 
 

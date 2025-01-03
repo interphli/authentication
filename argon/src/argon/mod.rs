@@ -1,7 +1,8 @@
-use lambda_http::lambda_runtime::{LambdaEvent, Error};
-use argon2::{Argon2, PasswordHasher, PasswordVerifier, password_hash::{SaltString, rand_core::OsRng, PasswordHash}};
-use crate::shared::{Request, Result as Response};
+use argon2::{Argon2, PasswordHasher, PasswordVerifier, password_hash::{SaltString, PasswordHash}};
+use shared::{Request, Result as Response};
+use lambda_runtime::{LambdaEvent, Error};
 pub use argon::new_argon2;
+use rand_core::OsRng;
 
 
 mod argon;
