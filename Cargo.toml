@@ -17,6 +17,7 @@ edition = "2021"
 [dependencies]
 lettre = { version = "0.11.11", features = ["smtp-transport", "tokio1", "tokio1-native-tls", "serde"] }
 aws-sdk-config = { version = "1.54.0", features = ["behavior-version-latest"] }
+aws-config = { version = "1.5.12", features = ["behavior-version-latest"] }
 native-tls = { version = "0.2", features = ["vendored"] }
 serde = { version = "1.0.215", features = ["derive"] }
 chrono = { version = "0.4.39", features = ["serde"] }
@@ -31,7 +32,6 @@ bson = "2.13.0"
 jwt = "0.16.0"
 rand = "0.8.5"
 url = "2.5.4"
-aws-config = { version = "1.5.12", features = ["behavior-version-latest"] }
 
 
 [features]
