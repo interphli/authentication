@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 use chrono::{Utc, DateTime};
 
 
-const PARAMETER_NAME: &'static str = "PASETO_KEY";
+pub const PARAMETER_NAME: &'static str = "PASETO_KEY";
 
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
