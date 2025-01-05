@@ -857,6 +857,7 @@ checksum = "4a3daa8e81a3963a60642bcc1f90a670680bd4a77535faa384e9d1c79d620871"
 dependencies = [
  "curve25519-dalek",
  "ed25519",
+ "rand_core",
  "serde",
  "sha2",
  "subtle",
@@ -1498,11 +1499,15 @@ dependencies = [
 name = "keyrotator"
 version = "0.1.0"
 dependencies = [
+ "aws-config",
  "aws-sdk-ssm",
- "base64 0.22.1",
+ "chrono",
  "ed25519-dalek",
  "lambda_runtime",
+ "rand",
  "serde",
+ "serde_json",
+ "shared",
  "tokio",
 ]
 
@@ -2323,6 +2328,7 @@ dependencies = [
 name = "shared"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "serde",
 ]
 
