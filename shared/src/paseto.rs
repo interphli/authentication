@@ -9,6 +9,7 @@ pub const PARAMETER_NAME: &'static str = "PASETO_KEY";
 pub struct Keys {
     pub private_key: [u8; 32],
     pub public_key: [u8; 32],
-    pub prev_public_key: [u8; 32],
-    pub created_time: DateTime<Utc>
+    pub prev_public_key: Option<[u8; 32]>,
+    pub created_time: DateTime<Utc>,
+    pub expires: DateTime<Utc>
 }
