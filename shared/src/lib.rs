@@ -1,3 +1,4 @@
+mod paseto;
 mod argon;
 
 
