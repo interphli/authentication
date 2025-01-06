@@ -14,7 +14,7 @@ type Result<T> = std::result::Result<T, Error>;
 pub trait Paseto: Serialize + DeserializeOwned + 'static {
     fn expired(&self) -> bool;
 
-    async fn try_verify(signature: &str, keys: Keys) -> Result<Self> {
+    fn try_verify(signature: &str, keys: &Keys) -> Result<Self> {
         let key = Key::from(&keys.public_key);
         let public_key = From::from(&key);
         let footer = Option::<Footer>::None;
@@ -42,7 +42,7 @@ pub trait Paseto: Serialize + DeserializeOwned + 'static {
     }
 
 
-    async fn try_sign(&self, keys: Keys) -> Result<String> {
+    fn try_sign(&self, keys: &Keys) -> Result<String> {
         let mut key = [0u8; 64];
         key[..32].copy_from_slice(&keys.private_key);
         key[32..].copy_from_slice(&keys.public_key);
