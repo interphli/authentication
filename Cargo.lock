@@ -1500,13 +1500,11 @@ name = "keyrotator"
 version = "0.1.0"
 dependencies = [
  "aws-config",
- "aws-sdk-ssm",
  "chrono",
  "ed25519-dalek",
  "lambda_runtime",
  "rand",
  "serde",
- "serde_json",
  "shared",
  "tokio",
 ]
@@ -2328,8 +2326,10 @@ dependencies = [
 name = "shared"
 version = "0.1.0"
 dependencies = [
+ "aws-sdk-ssm",
  "chrono",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

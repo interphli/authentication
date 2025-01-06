@@ -1,4 +1,3 @@
-use aws_sdk_ssm::types::ParameterType;
 use lambda_runtime::{service_fn, run};
 use std::error::Error as StdError;
 use lambda_runtime::LambdaEvent;
@@ -40,16 +39,16 @@ async fn handler(event: LambdaEvent<Command>, client: &Client) -> Result<()> {
 
 async fn create(client: &Client) -> Result<()> {
     let keys = keys(None);
-    put_key(client, &keys).await
+    keys.put(client).await
 }
 
 
 async fn update(client: &Client) -> Result<()> {
-    let previous_keys = match get_key(client).await {
+    let previous_keys = match Keys::get(client).await {
         Ok(Some(value)) => value,
         _ => {
             let keys = keys(None);
-            put_key(client, &keys).await?;
+            keys.put(client).await?;
             keys
         }
     };
@@ -58,7 +57,7 @@ async fn update(client: &Client) -> Result<()> {
     }
     let prev_public_key = Some(previous_keys.public_key);
     let keys = keys(prev_public_key);
-    put_key(client, &keys).await
+    keys.put(client).await
 }
 
 
@@ -69,30 +68,6 @@ fn keys(prev_public_key: Option<[u8; 32]>) -> Keys {
     let created_time = Utc::now();
     let expires = created_time + TimeDelta::days(expiry_days);
     Keys{private_key, public_key, prev_public_key, created_time, expires}
-}
-
-
-async fn get_key(client: &Client) -> Result<Option<Keys>> {
-    let name = PARAMETER_NAME;
-    let output = client.get_parameter().name(name).with_decryption(true).send().await?;
-    let parameter = match output.parameter {
-        Some(parameter) => parameter,
-        None => return Ok(None)
-    };
-    let json = match parameter.value {
-        Some(json) => json,
-        None => return Ok(None)
-    };
-    let keys = serde_json::from_str(&json)?;
-    Ok(Some(keys))
-}
-
-async fn put_key(client: &Client, keys: &Keys) -> Result<()> {
-    let json = serde_json::to_string(keys)?;
-    let name = PARAMETER_NAME;
-    let r#type = ParameterType::SecureString;
-    let _ = client.put_parameter().name(name).r#type(r#type).value(json).send().await?;
-    Ok(())
 }
 
 
