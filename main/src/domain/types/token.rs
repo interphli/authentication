@@ -4,7 +4,7 @@ use super::{Uuid, Id, Value};
 use chrono::{Utc, DateTime};
 
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(untagged)]
 pub enum Audience {
     One(String),
@@ -12,7 +12,7 @@ pub enum Audience {
 }
 
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Token<T = HashMap<String, Value>> {
     #[serde(rename = "jti")]
     pub id: Uuid,
