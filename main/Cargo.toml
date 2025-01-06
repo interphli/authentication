@@ -8,6 +8,7 @@ lettre = { version = "0.11.11", features = ["smtp-transport", "tokio1", "tokio1-
 aws-sdk-config = { version = "1.54.0", features = ["behavior-version-latest"] }
 aws-config = { version = "1.5.12", features = ["behavior-version-latest"] }
 native-tls = { version = "0.2", features = ["vendored"] }
+rusty_paseto = { version = "0.7.2", features = ["core"]}
 serde = { version = "1.0.215", features = ["derive"] }
 chrono = { version = "0.4.39", features = ["serde"] }
 shared = {path = "../shared", features = ["client"]}
