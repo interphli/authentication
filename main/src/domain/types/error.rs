@@ -9,6 +9,7 @@ use std::fmt::{Display, Formatter, Debug};
 use aws_sdk_dynamodb::error::BuildError;
 use std::error::Error as StdErrorTrait;
 use aws_sdk_config::error::SdkError;
+use rusty_paseto::core::PasetoError;
 use lambda_http::http::StatusCode;
 use lambda_http::Response;
 use lambda_http::Body;
@@ -22,6 +23,7 @@ pub enum Error {
     VerificationCodeNotFound,
     VerificationCodeExpired,
     WrongVerificationCode,
+    InvalidToken,
     InternalServerError(StdError),
     Custom(StatusCode, String, StdError)
 }
@@ -36,6 +38,7 @@ impl Error {
             VerificationCodeNotFound => (StatusCode::NOT_FOUND, String::from("verification-code not found")),
             VerificationCodeExpired => (StatusCode::GONE, String::from("the verification-code has expired")),
             WrongVerificationCode => (StatusCode::BAD_REQUEST, String::from("wrong verification code")),
+            InvalidToken => (StatusCode::UNAUTHORIZED, String::from("invalid authorization token")),
             InternalServerError(_) => (StatusCode::INTERNAL_SERVER_ERROR, String::from("internal server error. We are working on resolving the problem")),
             Custom(status, msg, _) => (*status, msg.clone())
         }
@@ -51,6 +54,7 @@ impl Display for Error {
             Error::VerificationCodeNotFound => write!(f, "verification code not found"),
             Error::VerificationCodeExpired => write!(f, "verification code has expired"),
             Error::WrongVerificationCode => write!(f, "wrong verification code"),
+            Error::InvalidToken => write!(f, "invalid authorization token"),
             Error::InternalServerError(err) => write!(f, "{err}"),
             Error::Custom(status, _, err) => write!(f, "{err}"),
         }
@@ -131,5 +135,15 @@ impl From<Error> for Response<Body> {
         res.headers_mut().insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
         *res.status_mut() = status;
         res
+    }
+}
+
+
+impl From<PasetoError> for Error {
+    fn from(err: PasetoError) -> Self {
+        match err {
+            PasetoError::InvalidSignature => Error::InvalidToken,
+            _ => Error::InternalServerError(err.into())
+        }
     }
 }
