@@ -2,6 +2,7 @@
 mod verification;
 mod number;
 mod either;
+mod token;
 mod value;
 mod error;
 mod uuid;
@@ -13,6 +14,7 @@ mod id;
 pub use verification::*;
 pub use number::*;
 pub use either::*;
+pub use token::*;
 pub use value::*;
 pub use error::*;
 pub use uuid::*;
