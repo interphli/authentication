@@ -1,4 +1,5 @@
 #![allow(unused)]
+mod oauthprovider;
 mod verification;
 mod number;
 mod either;
@@ -11,6 +12,7 @@ mod user;
 mod id;
 
 
+pub use oauthprovider::*;
 pub use verification::*;
 pub use number::*;
 pub use either::*;
