@@ -15,11 +15,11 @@ pub struct OAuthProvider {
     pub auth_url: Url,
     pub token_url: Url,
     pub scopes: Vec<String>,
-    pub params: Vec<String>
+    pub params: Vec<(String, String)>
 }
 
 
-impl From<OAuthProvider> for (BasicClient, Vec<Scope>, Vec<String>) {
+impl From<OAuthProvider> for (BasicClient, Vec<Scope>, Vec<(String, String)>) {
     fn from(provider: OAuthProvider) -> Self {
         let client_id = ClientId::new(provider.client_id);
         let client_secret = Some(ClientSecret::new(provider.client_secret));
