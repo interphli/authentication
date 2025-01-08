@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::error::Error as StdError;
 use super::Number;
+use url::Url;
 
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Default)]
@@ -85,6 +86,49 @@ impl TryFrom<Value> for String {
             Value::String(string) => Ok(string),
             _ => Err("Cannot convert to String".into())
         }
+    }
+}
+
+
+impl TryFrom<Value> for Url {
+    type Error = Box<dyn StdError>;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::String(value) => Ok(value.parse()?),
+            _ => Err("could not convert to URL")?
+        }
+    }
+}
+
+
+impl<T: TryFrom<Value, Error = Box<dyn StdError>> + Default, const SIZE: usize> TryFrom<Value> for [T; SIZE] {
+    type Error = Box<dyn StdError>;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        match value {
+            Value::Array(vec) => {
+                if vec.len() != SIZE {
+                    return  Err("incorrect array size")?;
+                }
+                let mut array: [T; SIZE] = unsafe {
+                    std::mem::MaybeUninit::uninit().assume_init() };
+                            for (i, val) in vec.into_iter().enumerate() {
+                                array[i] = T::try_from(val)?;
+                            }
+                Ok(array)
+            },
+            _ => Err("incorrect array type")?
+        }
+    }
+}
+
+
+impl TryFrom<Value> for oauth2::Scope {
+    type Error = Box<dyn StdError>;
+
+    fn try_from(value: Value) -> Result<Self, Self::Error> {
+        Ok(oauth2::Scope::new(value.try_into()?))
     }
 }
 
