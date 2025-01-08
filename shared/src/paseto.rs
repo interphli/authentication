@@ -8,7 +8,7 @@ use aws_sdk_ssm::Client;
 pub use aws_sdk_ssm;
 
 
-pub const PARAMETER_NAME: &'static str = "PASETO_KEY";
+pub const PARAMETER_NAME: &'static str = "interphlix/authentication/paseto_keys";
 
 
 type Result<T> = std::result::Result<T, Box<dyn StdError + Send + Sync>>;
@@ -45,7 +45,7 @@ impl Keys {
         let json = serde_json::to_string(self)?;
         let name = PARAMETER_NAME;
         let r#type = ParameterType::SecureString;
-        let _ = client.put_parameter().name(name).r#type(r#type).value(json).send().await?;
+        let _ = client.put_parameter().name(name).r#type(r#type).overwrite(true).value(json).send().await?;
         Ok(())
     }
 }
